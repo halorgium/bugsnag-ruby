@@ -79,15 +79,6 @@ module Bugsnag
       end
     end
 
-    # TODO: this is not thread-safe
-    def with_api_key(api_key)
-      existing_api_key = self.api_key
-      self.api_key = api_key
-      yield
-    ensure
-      self.api_key = existing_api_key
-    end
-
     def deliver(exception, overrides = nil, request_data = nil)
       Notification.new(exception, self, overrides, request_data).deliver
     end
@@ -110,6 +101,15 @@ module Bugsnag
 
     def clear_request_data
       Thread.current[THREAD_LOCAL_NAME] = nil
+    end
+
+    # TODO: this is not thread-safe
+    def with_api_key(api_key)
+      existing_api_key = self.api_key
+      self.api_key = api_key
+      yield
+    ensure
+      self.api_key = existing_api_key
     end
 
     private
