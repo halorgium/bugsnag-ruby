@@ -55,6 +55,18 @@ describe Bugsnag::Notification do
     Bugsnag.notify(BugsnagTestException.new("It crashed"))
   end
 
+  it "should allow overriding the api key" do
+    Bugsnag::Notification.should_receive(:deliver_exception_payload) do |endpoint, payload|
+      payload[:apiKey].should be == "0354ec4440b40aadb2d0ec22ccd1c1780c42dbb5"
+    end
+
+    Bugsnag.configuration.with_api_key("0354ec4440b40aadb2d0ec22ccd1c1780c42dbb5") do
+      Bugsnag.notify(BugsnagTestException.new("It crashed"))
+    end
+
+    # TODO: assert the api key is reset
+  end
+
   it "should have the right exception class" do
     Bugsnag::Notification.should_receive(:deliver_exception_payload) do |endpoint, payload|
       exception = get_exception_from_payload(payload)
