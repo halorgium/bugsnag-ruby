@@ -68,6 +68,21 @@ module Bugsnag
       self.middleware.use Bugsnag::Middleware::Callbacks
     end
 
+    def deliver_or_ignore(exception, overrides = nil, request_data = nil)
+      notification = Notification.new(exception, self, overrides, request_data)
+
+      unless notification.ignore?
+        notification.deliver
+        notification
+      else
+        false
+      end
+    end
+
+    def deliver(exception, overrides = nil, request_data = nil)
+      Notification.new(exception, self, overrides, request_data).deliver
+    end
+
     def should_notify?
       @release_stage.nil? || @notify_release_stages.nil? || @notify_release_stages.include?(@release_stage)
     end

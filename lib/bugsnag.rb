@@ -3,7 +3,6 @@ require "rubygems"
 require "bugsnag/version"
 require "bugsnag/configuration"
 require "bugsnag/meta_data"
-require "bugsnag/notifier"
 require "bugsnag/notification"
 require "bugsnag/helpers"
 
@@ -43,12 +42,12 @@ module Bugsnag
 
     # Explicitly notify of an exception
     def notify(exception, overrides=nil, request_data=nil)
-      notifier.deliver(exception, overrides, request_data)
+      configuration.deliver(exception, overrides, request_data)
     end
 
     # Notify of an exception unless it should be ignored
     def notify_or_ignore(exception, overrides=nil, request_data=nil)
-      notifier.deliver_or_ignore(exception, overrides, request_data)
+      configuration.deliver_or_ignore(exception, overrides, request_data)
     end
 
     # Auto notify of an exception, called from rails and rack exception
@@ -100,10 +99,6 @@ module Bugsnag
     # Allow access to "after notify" callbacks
     def after_notify_callbacks
       Bugsnag.configuration.request_data[:after_callbacks] ||= []
-    end
-
-    def notifier
-      Bugsnag::Notifier.new(configuration)
     end
   end
 end
